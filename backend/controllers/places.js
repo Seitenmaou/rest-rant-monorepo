@@ -1,4 +1,5 @@
 const router = require('express').Router()
+const { JWTError } = require('json-web-token')
 const db = require("../models")
 
 const { Place, Comment, User } = db
@@ -93,23 +94,49 @@ router.post('/:placeId/comments', async (req, res) => {
     if (!place) {
         res.status(404).json({ message: `Could not find place with id "${placeId}"` })
     }
+    //===================================================================================== 
+    // const author = await User.findOne({
+    //     where: { userId: req.body.authorId }
+    // })
 
-    const author = await User.findOne({
-        where: { userId: req.body.authorId }
-    })
+    // if (!author) {
+    //     res.status(404).json({ message: `Could not find author with id "${req.body.authorId}"` })
+    // }
+    //===================================================================================== 
 
-    if (!author) {
-        res.status(404).json({ message: `Could not find author with id "${req.body.authorId}"` })
+    //===================================================================================== 
+    // let currentUser;
+    // try {
+    //     const [method, token] = req.headers.authorization.split(' ')
+    //     if(method == 'Bearer') {
+    //         const result = await JWTError.decode(process.env.JWT_SECRET, token)
+    //         const {id} = result.value
+    //         currentUser = await User.findOne({
+    //             where: {
+    //                 userId: id
+    //             }
+    //         })
+    //     }
+    // } catch {
+    //     currentUser = null
+    // }
+    //===================================================================================== 
+
+    if (!req.currentUser) {
+        return res.status(404).json({
+            message: `You must be logged in to leave a rant or rave.`
+        })
     }
 
     const comment = await Comment.create({
         ...req.body,
+        authorId: req.currentUser.userId,
         placeId: placeId
     })
 
     res.send({
         ...comment.toJSON(),
-        author
+        author: req.currentUser
     })
 })
 
