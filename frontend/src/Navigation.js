@@ -25,9 +25,16 @@ function Navigation() {
 
     if (currentUser) {
         loginActions = (
+            <>
+            <li style={{ float: 'right' }}>
+                <a href="/" onClick={localStorage.removeItem('token')}>
+                    Logout
+                </a>
+            </li>
             <li style={{ float: 'right' }}>
                 Logged in as {currentUser.firstName} {currentUser.lastName}
             </li>
+            </>
         )
     }
 
